@@ -1,3 +1,5 @@
+"use client";
+
 import type { TimeRange } from "@/types/dashboard";
 import { dashboardRangeLabels } from "@/features/dashboard/range-config";
 

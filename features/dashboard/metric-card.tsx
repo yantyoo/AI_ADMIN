@@ -5,7 +5,7 @@ type MetricCardProps = {
 };
 
 export function MetricCard({ metric }: MetricCardProps) {
-  const ratePrefix = metric.compareDirection === "UP" ? "▲" : "▼";
+  const ratePrefix = metric.compareDirection === "UP" ? "+" : "-";
   const rateClass = metric.compareDirection === "UP" ? "is-up" : "is-down";
 
   return (

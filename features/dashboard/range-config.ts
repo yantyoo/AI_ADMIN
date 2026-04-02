@@ -12,11 +12,11 @@ export const dashboardRangeLabels: Record<
   WEEK: {
     label: "주간",
     helper: "주간 기준",
-    axisLabel: "일"
+    axisLabel: "날짜"
   },
   MONTH: {
     label: "월간",
     helper: "월간 기준",
-    axisLabel: "주"
+    axisLabel: "주차"
   }
 };

@@ -222,7 +222,7 @@ export function KnowledgePanel({
           )}
 
           {queryState === "SUCCESS" && result && (
-            <>
+            <div className="knowledge-result-scroll">
               <div className="knowledge-answer">
                 <p className="knowledge-answer__text">{result.answer}</p>
                 <p className="knowledge-answer__meta">생성 시각: {result.generatedAt}</p>
@@ -285,7 +285,7 @@ export function KnowledgePanel({
                   판정 저장
                 </button>
               </div>
-            </>
+            </div>
           )}
         </section>
       </div>
@@ -295,6 +295,7 @@ export function KnowledgePanel({
         <h2 className="panel__title">테스트 실행 이력</h2>
         <p className="panel__caption">문서별 테스트 실행 이력을 확인합니다.</p>
 
+        <div className="knowledge-history-scroll">
         <table className="content-table knowledge-history-table">
           <thead>
             <tr>
@@ -335,6 +336,7 @@ export function KnowledgePanel({
             )}
           </tbody>
         </table>
+        </div>
       </section>
     </div>
   );

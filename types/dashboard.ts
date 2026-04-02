@@ -14,6 +14,7 @@ export type MetricCardData = {
 
 export type TrendPoint = {
   label: string;
+  dateLabel: string;
   visitors: number;
   inquiries: number;
 };
@@ -22,11 +23,22 @@ export type KeywordItem = {
   rank: number;
   label: string;
   count: number;
+  ratio: number;
+};
+
+export type FeedbackReaction = "POSITIVE" | "NEGATIVE";
+
+export type FeedbackReactionSummary = {
+  count: number;
+  ratio: number;
+  keywords: KeywordItem[];
 };
 
 export type FeedbackRatioData = {
-  positive: number;
-  negative: number;
+  totalCount: number;
+  defaultReaction: FeedbackReaction;
+  positive: FeedbackReactionSummary;
+  negative: FeedbackReactionSummary;
 };
 
 export type DashboardPayload = {

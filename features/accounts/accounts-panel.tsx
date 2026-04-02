@@ -155,6 +155,7 @@ export function AccountsPanel({ accounts: initialAccounts }: AccountsPanelProps)
             </button>
           </div>
 
+          <div className="accounts-list-scroll">
           <table className="content-table knowledge-history-table">
             <thead>
               <tr>
@@ -194,6 +195,7 @@ export function AccountsPanel({ accounts: initialAccounts }: AccountsPanelProps)
               ))}
             </tbody>
           </table>
+          </div>
         </section>
 
         {/* 계정 상세 - FS-106~114 */}
@@ -203,7 +205,7 @@ export function AccountsPanel({ accounts: initialAccounts }: AccountsPanelProps)
               계정을 선택하면 상세 정보가 표시됩니다.
             </div>
           ) : (
-            <>
+            <div className="accounts-detail-scroll">
               <div className="content-detail__header">
                 <div>
                   <h3 className="content-detail__title">{selected.name}</h3>
@@ -317,7 +319,7 @@ export function AccountsPanel({ accounts: initialAccounts }: AccountsPanelProps)
                   </ul>
                 </div>
               )}
-            </>
+            </div>
           )}
         </aside>
       </div>

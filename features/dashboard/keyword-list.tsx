@@ -1,28 +1,40 @@
 import type { KeywordItem } from "@/types/dashboard";
+import { SectionHeader } from "@/features/dashboard/section-header";
 
 type KeywordListProps = {
+  title: string;
+  rangeLabel: string;
   items: KeywordItem[];
 };
 
-export function KeywordList({ items }: KeywordListProps) {
-  return (
-    <section className="panel panel--side">
-      <div className="panel__header panel__header--compact">
-        <h2 className="panel__title">자주 묻는 질문 키워드</h2>
-        <span className="panel__range-label">오늘 기준 7일</span>
-      </div>
+const formatPercent = (value: number) => {
+  return Number.isInteger(value) ? `${value}%` : `${value.toFixed(1)}%`;
+};
 
-      <ol className="keyword-list">
-        {items.map((item) => (
-          <li key={item.rank} className="keyword-list__item">
-            <div className="keyword-list__left">
-              <span className="keyword-list__rank">{item.rank}</span>
-              <span className="keyword-list__label">{item.label}</span>
-            </div>
-            <strong className="keyword-list__count">{item.count.toLocaleString()}건</strong>
-          </li>
-        ))}
-      </ol>
+export function KeywordList({ title, rangeLabel, items }: KeywordListProps) {
+  return (
+    <section className="dashboard-keyword-card">
+      <SectionHeader title={title} subtitle={rangeLabel} />
+
+      {items.length === 0 ? (
+        <div className="dashboard-keyword-empty">조건에 맞는 질문 키워드가 없습니다.</div>
+      ) : (
+        <ol className="keyword-list">
+          {items.map((item) => (
+            <li key={item.rank} className="keyword-list__item">
+              <div className="keyword-list__left">
+                <span className="keyword-list__rank">{item.rank}</span>
+                <span className="keyword-list__label">{item.label}</span>
+              </div>
+              <div className="keyword-list__stats">
+                <strong className="keyword-list__count">{item.count.toLocaleString()}건</strong>
+                <span className="keyword-list__divider">·</span>
+                <span className="keyword-list__ratio">{formatPercent(item.ratio)}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
     </section>
   );
 }

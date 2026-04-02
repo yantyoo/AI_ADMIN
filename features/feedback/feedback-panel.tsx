@@ -57,6 +57,7 @@ export function FeedbackPanel({ feedbacks }: FeedbackPanelProps) {
           </div>
 
           {/* 목록 테이블 - FS-088 */}
+          <div className="feedback-list-scroll">
           <table className="content-table">
             <thead>
               <tr>
@@ -110,6 +111,7 @@ export function FeedbackPanel({ feedbacks }: FeedbackPanelProps) {
               )}
             </tbody>
           </table>
+          </div>
         </section>
 
         {/* 피드백 상세 - FS-092, FS-093, FS-094 */}
@@ -119,7 +121,7 @@ export function FeedbackPanel({ feedbacks }: FeedbackPanelProps) {
               피드백을 선택하면 상세 정보가 표시됩니다.
             </div>
           ) : (
-            <>
+            <div className="feedback-detail-scroll">
               <div className="content-detail__header">
                 <div>
                   <h3 className="content-detail__title">{selected.complexName}</h3>
@@ -157,7 +159,7 @@ export function FeedbackPanel({ feedbacks }: FeedbackPanelProps) {
                   ))}
                 </div>
               </div>
-            </>
+            </div>
           )}
         </aside>
       </div>

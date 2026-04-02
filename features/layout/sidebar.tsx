@@ -37,10 +37,12 @@ export function Sidebar({ pathname }: SidebarProps) {
       </nav>
 
       <div className="sidebar__user">
-        <div className="sidebar__user-name">
-          {currentUser.name} ({currentUser.id})
+        <div className="sidebar__user-label">현재 로그인</div>
+        <div className="sidebar__user-name">{currentUser.name}</div>
+        <div className="sidebar__user-meta">{currentUser.id}</div>
+        <div className="sidebar__user-role">
+          {currentUser.role} · {currentUser.department}
         </div>
-        <div className="sidebar__user-role">{currentUser.department}</div>
       </div>
     </aside>
   );

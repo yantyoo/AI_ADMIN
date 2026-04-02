@@ -135,6 +135,7 @@ export function ContentPanel({ documents }: ContentPanelProps) {
 
         <div className="content-grid">
           <section className="content-table-card">
+            <div className="content-table-scroll">
             <table className="content-table">
               <thead>
                 <tr>
@@ -178,11 +179,12 @@ export function ContentPanel({ documents }: ContentPanelProps) {
                 )}
               </tbody>
             </table>
+            </div>
           </section>
 
           <aside className="content-detail-card">
             {selectedDocument ? (
-              <>
+              <div className="content-detail-scroll">
                 <div className="content-detail__header">
                   <div>
                     <h3 className="content-detail__title">{selectedDocument.name}</h3>
@@ -244,7 +246,7 @@ export function ContentPanel({ documents }: ContentPanelProps) {
                     ))}
                   </ul>
                 </section>
-              </>
+              </div>
             ) : (
               <div className="content-empty content-empty--detail">선택된 문서가 없습니다.</div>
             )}

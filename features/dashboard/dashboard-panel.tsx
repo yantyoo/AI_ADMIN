@@ -8,6 +8,7 @@ import { ErrorState } from "@/features/dashboard/error-state";
 import { FeedbackRatio } from "@/features/dashboard/feedback-ratio";
 import { KeywordList } from "@/features/dashboard/keyword-list";
 import { MetricCard } from "@/features/dashboard/metric-card";
+import { SectionHeader } from "@/features/dashboard/section-header";
 import { TimeRangeTabs } from "@/features/dashboard/time-range-tabs";
 import { TrendChart } from "@/features/dashboard/trend-chart";
 
@@ -24,15 +25,16 @@ export function DashboardPanel({ data }: DashboardPanelProps) {
   return (
     <div className="dashboard-grid">
       <section className="panel panel--main">
-        <div className="panel__header">
-          <div>
-            <h2 className="panel__title">기간별 질문 현황</h2>
-          </div>
-          <div className="panel__actions">
-            <span className="panel__range-label">{selectedLabel.helper}</span>
-            <TimeRangeTabs value={selectedRange} onChange={setSelectedRange} />
-          </div>
-        </div>
+        <SectionHeader
+          title="기간별 질문 현황"
+          subtitle="선택한 기간의 접속자 수와 질문 수를 함께 확인합니다."
+          actions={
+            <>
+              <span className="panel__range-label">{selectedLabel.helper}</span>
+              <TimeRangeTabs value={selectedRange} onChange={setSelectedRange} />
+            </>
+          }
+        />
 
         {showError ? (
           <ErrorState onRetry={() => setShowError(false)} />
@@ -50,7 +52,7 @@ export function DashboardPanel({ data }: DashboardPanelProps) {
       </section>
 
       <section className="dashboard-side">
-        <KeywordList items={data.fixedKeywords} />
+        <KeywordList title="자주 묻는 질문" rangeLabel="오늘 기준 7일" items={data.fixedKeywords} />
         <FeedbackRatio data={data.fixedFeedbackRatio} />
       </section>
     </div>
