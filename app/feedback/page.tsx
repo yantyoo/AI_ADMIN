@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/features/placeholder/placeholder-page";
+import { FeedbackPage } from "@/features/feedback/feedback-page";
 
-export default function FeedbackPage() {
-  return <PlaceholderPage path="/feedback" />;
+export default async function Page() {
+  return <FeedbackPage />;
 }

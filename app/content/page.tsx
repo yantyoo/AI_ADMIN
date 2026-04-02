@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/features/placeholder/placeholder-page";
+import { ContentPage } from "@/features/content/content-page";
 
-export default function ContentPage() {
-  return <PlaceholderPage path="/content" />;
+export default async function Page() {
+  return <ContentPage />;
 }

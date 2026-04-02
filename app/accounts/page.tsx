@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/features/placeholder/placeholder-page";
+import { AccountsPage } from "@/features/accounts/accounts-page";
 
-export default function AccountsPage() {
-  return <PlaceholderPage path="/accounts" />;
+export default async function Page() {
+  return <AccountsPage />;
 }

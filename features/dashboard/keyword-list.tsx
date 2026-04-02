@@ -9,7 +9,7 @@ export function KeywordList({ items }: KeywordListProps) {
     <section className="panel panel--side">
       <div className="panel__header panel__header--compact">
         <h2 className="panel__title">자주 묻는 질문 키워드</h2>
-        <span className="panel__range-label">지난 7일</span>
+        <span className="panel__range-label">오늘 기준 7일</span>
       </div>
 
       <ol className="keyword-list">

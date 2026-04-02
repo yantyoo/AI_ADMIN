@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/features/placeholder/placeholder-page";
+import { KnowledgePage } from "@/features/knowledge/knowledge-page";
 
-export default function KnowledgePage() {
-  return <PlaceholderPage path="/knowledge" />;
+export default async function Page() {
+  return <KnowledgePage />;
 }

@@ -8,6 +8,6 @@ export function getPlaceholderSpec(title: string, description: string): Placehol
   return {
     title,
     description,
-    blockedReason: "기능정의서에 상세 화면/액션/API가 없어 구현을 보류했습니다."
+    blockedReason: "기능정의서에 상세 화면 또는 API가 없어 현재는 구현 보류 상태입니다."
   };
 }

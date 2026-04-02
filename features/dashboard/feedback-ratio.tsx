@@ -12,7 +12,7 @@ export function FeedbackRatio({ data }: FeedbackRatioProps) {
     <section className="panel panel--side">
       <div className="panel__header panel__header--compact">
         <h2 className="panel__title">피드백 비율</h2>
-        <span className="panel__range-label">지난 7일</span>
+        <span className="panel__range-label">오늘 기준 7일</span>
       </div>
 
       <div className="donut">

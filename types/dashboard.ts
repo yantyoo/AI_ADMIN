@@ -1,20 +1,21 @@
 export type TimeRange = "DAY" | "WEEK" | "MONTH";
 
+export type ComparisonDirection = "UP" | "DOWN";
+
 export type MetricCardData = {
   key: "visitors" | "inquiries" | "failures";
   label: string;
   value: number;
   policyText: string;
+  compareLabel: string;
+  compareRate: number;
+  compareDirection: ComparisonDirection;
 };
 
 export type TrendPoint = {
   label: string;
-  value: number;
-};
-
-export type KnowledgeResponseData = {
-  knowledge: number;
-  general: number;
+  visitors: number;
+  inquiries: number;
 };
 
 export type KeywordItem = {
@@ -32,7 +33,6 @@ export type DashboardPayload = {
   selectedRange: TimeRange;
   metrics: MetricCardData[];
   trend: TrendPoint[];
-  knowledgeResponse: KnowledgeResponseData;
-  topKeywords: KeywordItem[];
-  feedbackRatio: FeedbackRatioData;
+  fixedKeywords: KeywordItem[];
+  fixedFeedbackRatio: FeedbackRatioData;
 };
