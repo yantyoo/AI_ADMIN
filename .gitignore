@@ -1,3 +1,6 @@
 .next
 node_modules
 *.log
+.next-start.err
+.next-start.log
+.deploy-staging
