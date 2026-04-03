@@ -1,0 +1,555 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { ListPanel } from "@/components/layout/list-panel";
+import { Pagination } from "@/components/ui/pagination";
+import {
+  createCacheQaEntry,
+  findCacheQaDuplicate,
+  toggleCacheQaEntryStatus,
+  updateCacheQaEntry
+} from "@/api/cache-qa";
+import type { CacheQaFilters, CacheQaForm, CacheQaItem, CacheQaStatus } from "@/types/cache-qa";
+
+type CacheQaPanelProps = {
+  items: CacheQaItem[];
+};
+
+type EditorMode = "CREATE" | "EDIT";
+
+const PAGE_SIZE = 10;
+const QUESTION_MAX_LENGTH = 500;
+const ANSWER_MAX_LENGTH = 2000;
+
+const statusLabels: Record<CacheQaStatus, string> = {
+  ACTIVE: "활성",
+  INACTIVE: "비활성"
+};
+
+const statusOptions: Array<{ label: string; value: CacheQaFilters["status"] }> = [
+  { label: "전체", value: "ALL" },
+  { label: "활성", value: "ACTIVE" },
+  { label: "비활성", value: "INACTIVE" }
+];
+
+const defaultForm: CacheQaForm = {
+  question: "",
+  answer: "",
+  status: "ACTIVE"
+};
+
+const normalize = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/[^0-9a-z가-힣]/gi, "");
+
+const buildSummary = (value: string, limit = 56) => {
+  const trimmed = value.trim();
+  return trimmed.length <= limit ? trimmed : `${trimmed.slice(0, limit)}...`;
+};
+
+const compareDateDesc = (left: CacheQaItem, right: CacheQaItem) =>
+  right.createdAt.localeCompare(left.createdAt);
+
+export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
+  const [items, setItems] = useState(initialItems.slice().sort(compareDateDesc));
+  const [filters, setFilters] = useState<CacheQaFilters>({ keyword: "", status: "ALL" });
+  const [searchDraft, setSearchDraft] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(initialItems[0]?.id ?? null);
+  const [page, setPage] = useState(1);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState<EditorMode>("CREATE");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<CacheQaForm>(defaultForm);
+  const [message, setMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const filteredItems = useMemo(() => {
+    const keyword = normalize(filters.keyword);
+
+    return items
+      .map((item) => {
+        const normalizedQuestion = normalize(item.question);
+        const exactMatch =
+          keyword.length === 0 ||
+          normalizedQuestion.includes(keyword) ||
+          keyword.includes(normalizedQuestion);
+
+        const similarity =
+          keyword.length === 0
+            ? 1
+            : Math.max(
+                normalizedQuestion === keyword
+                  ? 1
+                  : 1 -
+                      Math.abs(normalizedQuestion.length - keyword.length) /
+                        Math.max(normalizedQuestion.length, keyword.length, 1),
+                normalizedQuestion.includes(keyword) ? 0.92 : 0,
+                keyword.includes(normalizedQuestion) ? 0.92 : 0
+              );
+
+        return { item, score: similarity, exactMatch };
+      })
+      .filter(({ item, score, exactMatch }) => {
+        const statusMatch = filters.status === "ALL" || item.status === filters.status;
+        const keywordMatch = keyword.length === 0 ? true : exactMatch || score >= 0.35;
+        return statusMatch && keywordMatch;
+      })
+      .sort((left, right) => {
+        if (keyword.length > 0 && right.score !== left.score) return right.score - left.score;
+        return compareDateDesc(left.item, right.item);
+      })
+      .map(({ item }) => item);
+  }, [filters.keyword, filters.status, items]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+  const pagedItems = filteredItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const selectedItem = filteredItems.find((item) => item.id === selectedId) ?? null;
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
+
+  useEffect(() => {
+    if (filteredItems.length === 0) {
+      setSelectedId(null);
+      return;
+    }
+
+    if (!selectedId || !filteredItems.some((item) => item.id === selectedId)) {
+      setSelectedId(filteredItems[0].id);
+    }
+  }, [filteredItems, selectedId]);
+
+  useEffect(() => {
+    if (pagedItems.length === 0) return;
+    if (!selectedId || !pagedItems.some((item) => item.id === selectedId)) {
+      setSelectedId(pagedItems[0].id);
+    }
+  }, [pagedItems, selectedId]);
+
+  const showMessage = (text: string) => {
+    setMessage(text);
+    setTimeout(() => setMessage(null), 2500);
+  };
+
+  const openCreateEditor = () => {
+    setEditorMode("CREATE");
+    setEditingId(null);
+    setForm(defaultForm);
+    setErrorMessage(null);
+    setEditorOpen(true);
+  };
+
+  const openEditEditor = () => {
+    if (!selectedItem) return;
+
+    setEditorMode("EDIT");
+    setEditingId(selectedItem.id);
+    setForm({
+      question: selectedItem.question,
+      answer: selectedItem.answer,
+      status: selectedItem.status
+    });
+    setErrorMessage(null);
+    setEditorOpen(true);
+  };
+
+  const closeEditor = () => {
+    setEditorOpen(false);
+    setErrorMessage(null);
+  };
+
+  const resetSearch = () => {
+    setSearchDraft("");
+    setFilters((current) => ({ ...current, keyword: "" }));
+    setPage(1);
+  };
+
+  const applySearch = () => {
+    setFilters((current) => ({ ...current, keyword: searchDraft.trim() }));
+    setPage(1);
+  };
+
+  const handleSubmit = async () => {
+    if (!form.question.trim() || !form.answer.trim()) {
+      setErrorMessage("질문과 답변을 모두 입력해 주세요.");
+      return;
+    }
+
+    const duplicate = findCacheQaDuplicate(items, form.question.trim(), editingId ?? undefined);
+    if (duplicate) {
+      setErrorMessage("유사한 질문이 이미 등록되어 있습니다.");
+      return;
+    }
+
+    if (editorMode === "CREATE") {
+      const nextItem = await createCacheQaEntry(form);
+      setItems((current) => [nextItem, ...current].sort(compareDateDesc));
+      setSelectedId(nextItem.id);
+      showMessage("Q&A가 등록되었습니다.");
+      setForm(defaultForm);
+      closeEditor();
+      return;
+    }
+
+    if (!editingId) {
+      setErrorMessage("수정할 항목을 선택해 주세요.");
+      return;
+    }
+
+    const currentItem = items.find((item) => item.id === editingId);
+    if (!currentItem) {
+      setErrorMessage("수정 대상이 존재하지 않습니다.");
+      return;
+    }
+
+    const updated = await updateCacheQaEntry(currentItem, form);
+    setItems((current) => current.map((item) => (item.id === editingId ? updated : item)).sort(compareDateDesc));
+    setSelectedId(updated.id);
+    showMessage("Q&A가 수정되었습니다.");
+    setForm(defaultForm);
+    setEditorMode("CREATE");
+    setEditingId(null);
+    closeEditor();
+  };
+
+  const handleToggleStatus = async () => {
+    if (!selectedItem) return;
+
+    const nextStatus: CacheQaStatus = selectedItem.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    const updated = await toggleCacheQaEntryStatus(selectedItem, nextStatus);
+    setItems((current) => current.map((item) => (item.id === updated.id ? updated : item)).sort(compareDateDesc));
+    setSelectedId(updated.id);
+    showMessage(nextStatus === "ACTIVE" ? "Q&A가 활성화되었습니다." : "Q&A가 비활성화되었습니다.");
+  };
+
+  const handleDelete = () => {
+    if (!selectedItem) return;
+
+    setItems((current) => {
+      const next = current.filter((item) => item.id !== selectedItem.id).sort(compareDateDesc);
+      setSelectedId(next[0]?.id ?? null);
+      return next;
+    });
+    setDeleteOpen(false);
+    showMessage("Q&A가 삭제되었습니다.");
+    setEditorMode("CREATE");
+    setEditingId(null);
+    setForm(defaultForm);
+  };
+
+  return (
+    <div className="cache-qa-layout">
+      {message ? <p className="content-message">{message}</p> : null}
+      {errorMessage ? <p className="content-error">{errorMessage}</p> : null}
+
+      <div className="cache-qa-grid">
+        <ListPanel
+          className="cache-qa-list-card"
+          title="Q&A 목록"
+          description="캐시 우선 응답에 사용하는 질문/답변을 관리합니다."
+          actions={
+            <button type="button" className="primary-button" onClick={openCreateEditor}>
+              Q&A 등록
+            </button>
+          }
+          toolbar={
+            <form
+              className="cache-qa-toolbar"
+              onSubmit={(event) => {
+                event.preventDefault();
+                applySearch();
+              }}
+            >
+              <label className="field cache-qa-field">
+                <span className="field__label">질문 검색</span>
+                <input
+                  className="field__input"
+                  type="search"
+                  placeholder="2자 이상 입력 권장"
+                  value={searchDraft}
+                  onChange={(event) => setSearchDraft(event.target.value)}
+                />
+              </label>
+
+              <label className="field cache-qa-field">
+                <span className="field__label">상태</span>
+                <select
+                  className="field__input"
+                  value={filters.status}
+                  onChange={(event) => {
+                    setFilters((current) => ({
+                      ...current,
+                      status: event.target.value as CacheQaFilters["status"]
+                    }));
+                    setPage(1);
+                  }}
+                >
+                  {statusOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="cache-qa-toolbar__actions">
+                <button type="submit" className="primary-button">
+                  검색
+                </button>
+                <button type="button" className="secondary-button" onClick={resetSearch}>
+                  초기화
+                </button>
+              </div>
+            </form>
+          }
+          footer={<Pagination page={page} totalPages={totalPages} onChange={setPage} />}
+        >
+          <div className="list-panel__scroll cache-qa-list-scroll">
+            {pagedItems.length === 0 ? (
+              <div className="list-panel__empty">조건에 맞는 Q&A가 없습니다.</div>
+            ) : (
+              <table className="content-table cache-qa-table">
+                <thead>
+                  <tr>
+                    <th>질문</th>
+                    <th>답변 요약</th>
+                    <th>상태</th>
+                    <th>등록일</th>
+                    <th>수정일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pagedItems.map((item) => (
+                    <tr
+                      key={item.id}
+                      className={item.id === selectedItem?.id ? "is-selected" : ""}
+                      onClick={() => setSelectedId(item.id)}
+                    >
+                      <td>
+                        <div className="content-table__title">{item.question}</div>
+                      </td>
+                      <td>{buildSummary(item.answer)}</td>
+                      <td>
+                        <span className={`status-badge status-badge--${item.status.toLowerCase()}`}>
+                          {statusLabels[item.status]}
+                        </span>
+                      </td>
+                      <td>{item.createdAt}</td>
+                      <td>{item.updatedAt}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </ListPanel>
+
+        <aside className="cache-qa-side">
+          <section className="cache-qa-detail-card">
+            <div className="panel__header panel__header--compact">
+              <div>
+                <h2 className="panel__title">상세 정보</h2>
+              </div>
+              {selectedItem ? (
+                <span className={`status-badge status-badge--${selectedItem.status.toLowerCase()}`}>
+                  {statusLabels[selectedItem.status]}
+                </span>
+              ) : null}
+            </div>
+
+            {selectedItem ? (
+              <div className="cache-qa-detail-scroll">
+                <div className="cache-qa-conversation">
+                  <div className="feedback-conversation__turn feedback-conversation__turn--user">
+                    <p className="feedback-conversation__speaker">
+                      질문 · {selectedItem.createdAt}
+                    </p>
+                    <p className="feedback-conversation__message">{selectedItem.question}</p>
+                  </div>
+
+                  <div className="feedback-conversation__turn feedback-conversation__turn--bot">
+                    <p className="feedback-conversation__speaker">
+                      답변 · {selectedItem.updatedAt}
+                    </p>
+                    <p className="feedback-conversation__message">{selectedItem.answer}</p>
+                  </div>
+                </div>
+
+                <dl className="content-detail__list cache-qa-meta">
+                  <div className="cache-qa-meta__inline">
+                    <dt>수정자 / 수정일</dt>
+                    <dd>
+                      {selectedItem.updatedBy} / {selectedItem.updatedAt}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>캐시 조회 수</dt>
+                    <dd>{selectedItem.hitCount.toLocaleString()}</dd>
+                  </div>
+                </dl>
+
+                <div className="cache-qa-detail-actions">
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={openEditEditor}
+                  >
+                    수정
+                  </button>
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={handleToggleStatus}
+                    disabled={!selectedItem}
+                  >
+                    {selectedItem.status === "ACTIVE" ? "비활성화" : "활성화"}
+                  </button>
+                  <button
+                    type="button"
+                    className="danger-button"
+                    onClick={() => setDeleteOpen(true)}
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="list-panel__empty cache-qa-empty">
+                Q&A를 선택하면 상세 정보가 표시됩니다.
+              </div>
+            )}
+          </section>
+        </aside>
+      </div>
+
+      {editorOpen ? (
+        <div className="modal-backdrop" role="presentation" onClick={closeEditor}>
+          <div
+            className="modal modal--compact"
+            role="dialog"
+            aria-modal="true"
+            aria-label={editorMode === "EDIT" ? "Q&A 수정" : "Q&A 등록"}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal__header">
+              <h3>{editorMode === "EDIT" ? "Q&A 수정" : "Q&A 등록"}</h3>
+              <button type="button" className="icon-button" onClick={closeEditor}>
+                ✕
+              </button>
+            </div>
+
+            <div className="modal__body">
+              <div className="cache-qa-form cache-qa-form--modal">
+                <label className="field">
+                  <span className="field__label">질문 *</span>
+                  <textarea
+                    className="field__input knowledge-textarea cache-qa-textarea"
+                    rows={3}
+                    maxLength={QUESTION_MAX_LENGTH}
+                    value={form.question}
+                    placeholder="캐시 응답용 질문을 입력해 주세요."
+                    onChange={(event) =>
+                      setForm((current) => ({ ...current, question: event.target.value }))
+                    }
+                  />
+                  <p className="cache-qa-form__counter">
+                    {form.question.length}/{QUESTION_MAX_LENGTH}자
+                  </p>
+                </label>
+
+                <label className="field">
+                  <span className="field__label">답변 *</span>
+                  <textarea
+                    className="field__input knowledge-textarea cache-qa-textarea"
+                    rows={6}
+                    maxLength={ANSWER_MAX_LENGTH}
+                    value={form.answer}
+                    placeholder="캐시 응답으로 반환할 답변을 입력해 주세요."
+                    onChange={(event) =>
+                      setForm((current) => ({ ...current, answer: event.target.value }))
+                    }
+                  />
+                  <p className="cache-qa-form__counter">
+                    {form.answer.length}/{ANSWER_MAX_LENGTH}자
+                  </p>
+                </label>
+
+                <label className="field">
+                  <span className="field__label">상태</span>
+                  <select
+                    className="field__input"
+                    value={form.status}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        status: event.target.value as CacheQaStatus
+                      }))
+                    }
+                  >
+                    <option value="ACTIVE">활성</option>
+                    <option value="INACTIVE">비활성</option>
+                  </select>
+                </label>
+
+                {errorMessage ? <p className="content-error">{errorMessage}</p> : null}
+              </div>
+            </div>
+
+            <div className="modal__footer modal__footer--split">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => {
+                  closeEditor();
+                  setForm(defaultForm);
+                  setEditorMode("CREATE");
+                  setEditingId(null);
+                }}
+              >
+                초기화
+              </button>
+              <button type="button" className="primary-button" onClick={handleSubmit}>
+                {editorMode === "EDIT" ? "수정 저장" : "등록"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {deleteOpen ? (
+        <div className="modal-backdrop" role="presentation" onClick={() => setDeleteOpen(false)}>
+          <div
+            className="modal modal--compact"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Q&A 삭제 확인"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal__header">
+              <h3>Q&A 삭제 확인</h3>
+              <button type="button" className="icon-button" onClick={() => setDeleteOpen(false)}>
+                ✕
+              </button>
+            </div>
+            <div className="modal__body">
+              <p className="content-confirm">선택한 Q&A를 삭제하면 캐시 응답에서 즉시 제외됩니다.</p>
+            </div>
+            <div className="modal__footer modal__footer--split">
+              <button type="button" className="secondary-button" onClick={() => setDeleteOpen(false)}>
+                취소
+              </button>
+              <button type="button" className="danger-button" onClick={handleDelete}>
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}

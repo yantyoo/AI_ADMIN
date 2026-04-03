@@ -1,14 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { currentUser, navItems } from "@/features/layout/config";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { navItems } from "@/features/layout/config";
+import { clearAuthProfile, readStoredAuthProfile } from "@/features/layout/session";
 
-type SidebarProps = {
-  pathname: string;
-};
+const AUTH_STAGE_KEY = "xperp-mock-auth-stage";
+const AUTH_AUTHENTICATED_KEY = "xperp-mock-authenticated";
+const AUTH_USER_KEY = "xperp-mock-auth-user";
+const AUTH_OTP_FAILURES_KEY = "xperp-mock-otp-failures";
+const AUTH_OTP_LOCKED_KEY = "xperp-mock-otp-locked";
 
-export function Sidebar({ pathname }: SidebarProps) {
+export function Sidebar() {
+  const pathname = usePathname() ?? "/";
+  const router = useRouter();
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const currentUser = readStoredAuthProfile();
   const visibleItems = navItems.filter((item) => item.roles.includes(currentUser.role));
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem(AUTH_STAGE_KEY);
+      window.sessionStorage.removeItem(AUTH_AUTHENTICATED_KEY);
+      window.sessionStorage.removeItem(AUTH_USER_KEY);
+      window.sessionStorage.removeItem(AUTH_OTP_FAILURES_KEY);
+      window.sessionStorage.removeItem(AUTH_OTP_LOCKED_KEY);
+      window.localStorage.removeItem(AUTH_AUTHENTICATED_KEY);
+    }
+
+    clearAuthProfile();
+    setLogoutOpen(false);
+    router.replace("/login");
+  };
 
   return (
     <aside className="sidebar">
@@ -37,13 +62,44 @@ export function Sidebar({ pathname }: SidebarProps) {
       </nav>
 
       <div className="sidebar__user">
-        <div className="sidebar__user-label">현재 로그인</div>
-        <div className="sidebar__user-name">{currentUser.name}</div>
-        <div className="sidebar__user-meta">{currentUser.id}</div>
+        <div className="sidebar__user-row">
+          <div className="sidebar__user-name">{currentUser.name}</div>
+          <div className="sidebar__user-meta">{currentUser.id}</div>
+        </div>
         <div className="sidebar__user-role">
           {currentUser.role} · {currentUser.department}
         </div>
+        <button type="button" className="secondary-button sidebar__logout" onClick={() => setLogoutOpen(true)}>
+          로그아웃
+        </button>
       </div>
+
+      {logoutOpen ? (
+        <div className="modal-backdrop logout-backdrop" role="presentation" onClick={() => setLogoutOpen(false)}>
+          <section
+            className="modal modal--compact"
+            role="dialog"
+            aria-modal="true"
+            aria-label="로그아웃 확인"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal__header modal__header--tight">
+              <h3>로그아웃</h3>
+            </div>
+            <div className="modal__body">
+              <p className="logout-confirm__text">로그아웃 하시겠습니까?</p>
+            </div>
+            <div className="modal__footer modal__footer--split">
+              <button type="button" className="secondary-button" onClick={() => setLogoutOpen(false)}>
+                취소
+              </button>
+              <button type="button" className="danger-button" onClick={handleLogout}>
+                확인
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </aside>
   );
 }
