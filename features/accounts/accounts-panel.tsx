@@ -197,21 +197,29 @@ export function AccountsPanel({ accounts: initialAccounts }: AccountsPanelProps)
         <DetailFrame
           className="accounts-detail-card"
           title="관리자 상세"
-            actions={
-              selected ? (
-                <span className={`status-badge status-badge--${selected.status.toLowerCase()}`}>
-                  {ACCOUNT_STATUS_LABELS[selected.status]}
-                </span>
-              ) : null
-            }
+          actions={
+            selected ? (
+              <span className={`status-badge status-badge--${selected.status.toLowerCase()}`}>
+                {ACCOUNT_STATUS_LABELS[selected.status]}
+              </span>
+            ) : null
+          }
         >
           {selected === null ? (
             <div className="content-empty content-empty--detail">관리자를 선택하면 상세 정보가 표시됩니다.</div>
           ) : (
             <div className="accounts-detail-scroll">
               <SectionHeader
-                title={selected.name}
-                className="detail-frame__header"
+                title={
+                  <div className="accounts-detail-identity">
+                    <span className="accounts-detail-identity__name">{selected.name}</span>
+                    <div className="accounts-detail-identity__meta">
+                      <span className="accounts-detail-identity__id">{selected.id}</span>
+                      <span className="accounts-detail-identity__role">{ACCOUNT_ROLE_LABELS[selected.role]}</span>
+                    </div>
+                  </div>
+                }
+                className="detail-frame__header accounts-detail-identity-header"
                 titleAs="h3"
               />
 

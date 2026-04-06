@@ -1453,7 +1453,7 @@ select.field__input {
 .detail-frame {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   min-height: 0;
   height: 100%;
 }
@@ -1465,7 +1465,7 @@ select.field__input {
 .detail-frame__body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   min-height: 0;
   flex: 1;
 }
@@ -1659,31 +1659,56 @@ select.field__input {
   flex: 1;
   min-width: 0;
   display: grid;
-  gap: 8px;
-  padding: 12px 14px;
-  border: 1px solid rgba(74, 130, 245, 0.18);
-  border-radius: 16px;
-  background: #f7faff;
-  box-shadow: 0 10px 24px rgba(23, 36, 61, 0.06);
+  gap: 0;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.content-detail__identity {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
 }
 
 .content-detail__title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.25;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.3;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content-detail__type-pill {
+  width: fit-content;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
 }
 
 .content-detail__list {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
   margin: 10px 0 0;
 }
 
 .content-detail__list div {
   display: grid;
   gap: 3px;
+  min-width: 0;
 }
 
 .content-detail__list dt {
@@ -1896,8 +1921,8 @@ select.field__input {
 }
 
 .knowledge-answer {
-  margin-top: 10px;
-  padding: 14px;
+  margin-top: 0;
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   background: var(--surface-muted);
 }
@@ -1910,14 +1935,14 @@ select.field__input {
 }
 
 .knowledge-answer__meta {
-  margin: 10px 0 0;
+  margin: 4px 0 0;
   font-size: 12px;
   color: var(--text-muted);
 }
 
 .knowledge-reference {
-  margin-top: 10px;
-  padding: 12px 14px;
+  margin-top: 0;
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: #ffffff;
@@ -1930,7 +1955,7 @@ select.field__input {
 }
 
 .knowledge-verdict-label {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -1941,8 +1966,8 @@ select.field__input {
 .knowledge-verdict {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .knowledge-verdict__button {
@@ -1970,17 +1995,16 @@ select.field__input {
 }
 
 .knowledge-memo-field {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .knowledge-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
+  gap: 8px;
+  margin-top: 0;
+  padding-top: 6px;
 }
 
 .knowledge-action-row {
@@ -2009,15 +2033,16 @@ select.field__input {
 .knowledge-result-scroll,
 .knowledge-history-scroll {
   display: grid;
-  gap: 10px;
+  gap: 6px;
   min-height: 0;
 }
 
 .knowledge-result-scroll {
-  flex: 1;
+  flex: none;
   max-height: none;
   overflow: auto;
   padding-right: 6px;
+  align-content: start;
 }
 
 .knowledge-history-scroll {
@@ -2249,11 +2274,58 @@ select.field__input {
 }
 
 .feedback-conversation-section {
-  margin-top: 8px;
+  margin-top: 0;
+}
+
+.feedback-detail-identity {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
+  flex: 1 1 100%;
+  justify-self: stretch;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.feedback-detail-identity-header .section-header__copy {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.feedback-detail-identity-header .section-header__title {
+  width: 100%;
+}
+
+.feedback-detail-identity__complex {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.feedback-detail-identity__user {
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .feedback-conversation-label {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -2263,7 +2335,7 @@ select.field__input {
 
 .feedback-conversation {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .feedback-conversation__turn {
@@ -2366,6 +2438,72 @@ select.field__input {
   height: 100%;
 }
 
+.accounts-detail-identity {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
+  flex: 1 1 100%;
+  justify-self: stretch;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.accounts-detail-identity__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.accounts-detail-identity-header .section-header__copy {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.accounts-detail-identity-header .section-header__title {
+  width: 100%;
+}
+
+.accounts-detail-identity__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.accounts-detail-identity__id {
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accounts-detail-identity__role {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
 .accounts-action-row {
   display: flex;
   flex-wrap: wrap;
@@ -2435,6 +2573,7 @@ select.field__input {
   flex: 1;
   overflow-y: auto;
   padding-right: 6px;
+  align-content: start;
 }
 
 .accounts-history-list li strong {
@@ -2486,7 +2625,7 @@ select.field__input {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 18px;
+  padding: 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: #ffffff;
@@ -2498,13 +2637,15 @@ select.field__input {
 .cache-qa-side {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   min-height: 0;
   height: 100%;
 }
 
 .cache-qa-detail-card {
-  flex: 0 0 auto;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
 }
 
 .cache-qa-editor-card {
@@ -2538,11 +2679,12 @@ select.field__input {
 
 .cache-qa-detail-scroll {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   min-height: 0;
   flex: 1;
   overflow-y: auto;
   padding-right: 6px;
+  align-content: start;
 }
 
 .cache-qa-summary-grid {
@@ -2578,7 +2720,7 @@ select.field__input {
 
 .cache-qa-conversation {
   display: grid;
-  gap: 5px;
+  gap: 4px;
 }
 
 .cache-qa-conversation .feedback-conversation__turn--user {
@@ -2592,14 +2734,14 @@ select.field__input {
 .cache-qa-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 4px 8px;
   margin-top: 0;
   align-items: start;
 }
 
 .cache-qa-meta__item {
   display: grid;
-  gap: 4px;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -2614,21 +2756,25 @@ select.field__input {
 .cache-qa-meta__item dd {
   margin: 0;
   color: var(--text);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.4;
   word-break: break-word;
 }
 
 .cache-qa-detail-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
   margin-top: 0;
 }
 
 .cache-qa-detail-actions > button {
-  width: 100%;
+  width: 120px;
+  min-width: 120px;
+  height: 40px;
+  padding: 10px 18px;
 }
 
 .cache-qa-form {

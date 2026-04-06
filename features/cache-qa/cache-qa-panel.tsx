@@ -32,11 +32,6 @@ type CacheQaPanelProps = {
 
 type EditorMode = "CREATE" | "EDIT";
 
-const buildSummary = (value: string, limit = 56) => {
-  const trimmed = value.trim();
-  return trimmed.length <= limit ? trimmed : `${trimmed.slice(0, limit)}...`;
-};
-
 const compareDateDesc = (left: CacheQaItem, right: CacheQaItem) =>
   compareStringDesc(left.createdAt, right.createdAt);
 
@@ -281,11 +276,11 @@ export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
                   }}
                 >
                   {CACHE_QA_STATUS_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </label>
 
               <div className="cache-qa-toolbar__actions">
@@ -308,7 +303,6 @@ export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
                 <thead>
                   <tr>
                     <th>질문</th>
-                    <th>답변 요약</th>
                     <th>상태</th>
                     <th>등록일</th>
                     <th>수정일</th>
@@ -324,7 +318,6 @@ export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
                       <td>
                         <div className="content-table__title">{item.question}</div>
                       </td>
-                      <td>{buildSummary(item.answer)}</td>
                       <td>
                         <span className={`status-badge status-badge--${item.status.toLowerCase()}`}>
                           {CACHE_QA_STATUS_LABELS[item.status]}
@@ -358,16 +351,12 @@ export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
                   <p className="feedback-conversation-label">대화 내용</p>
                   <div className="cache-qa-conversation">
                     <div className="feedback-conversation__turn feedback-conversation__turn--user">
-                      <p className="feedback-conversation__speaker">
-                        질문 · {selectedItem.createdAt}
-                      </p>
+                      <p className="feedback-conversation__speaker">질문</p>
                       <p className="feedback-conversation__message">{selectedItem.question}</p>
                     </div>
 
                     <div className="feedback-conversation__turn feedback-conversation__turn--bot">
-                      <p className="feedback-conversation__speaker">
-                        답변 · {selectedItem.updatedAt}
-                      </p>
+                      <p className="feedback-conversation__speaker">답변</p>
                       <p className="feedback-conversation__message">{selectedItem.answer}</p>
                     </div>
                   </div>
@@ -375,28 +364,24 @@ export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
 
                 <dl className="content-detail__list cache-qa-meta">
                   <div>
-                    <dt>등록일</dt>
-                    <dd>{selectedItem.createdAt}</dd>
-                  </div>
-                  <div>
                     <dt>등록자</dt>
                     <dd>{selectedItem.createdBy}</dd>
                   </div>
                   <div>
-                    <dt>수정일</dt>
-                    <dd>{selectedItem.updatedAt}</dd>
+                    <dt>등록일</dt>
+                    <dd>{selectedItem.createdAt}</dd>
                   </div>
                   <div>
                     <dt>수정자</dt>
                     <dd>{selectedItem.updatedBy}</dd>
                   </div>
                   <div>
-                    <dt>캐시 조회 수</dt>
-                    <dd>{selectedItem.hitCount.toLocaleString()}</dd>
+                    <dt>수정일</dt>
+                    <dd>{selectedItem.updatedAt}</dd>
                   </div>
                   <div>
-                    <dt>마지막 매칭</dt>
-                    <dd>{selectedItem.lastMatchedAt ?? "-"}</dd>
+                    <dt>캐시 조회 수</dt>
+                    <dd>{selectedItem.hitCount.toLocaleString()}</dd>
                   </div>
                 </dl>
 

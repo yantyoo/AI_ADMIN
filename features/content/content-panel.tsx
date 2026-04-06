@@ -352,13 +352,22 @@ export function ContentPanel({ documents }: ContentPanelProps) {
           {selectedDocument ? (
             <div className="content-detail-scroll">
               <div className="content-detail__name-card">
-                <h3 className="content-detail__title">{selectedDocument.name}</h3>
+                <div className="content-detail__identity">
+                  <h3 className="content-detail__title">{selectedDocument.name}</h3>
+                  <span className="content-detail__type-pill">
+                    {selectedDocument.type === "MANUAL" ? "매뉴얼" : "FAQ"}
+                  </span>
+                </div>
               </div>
 
               <dl className="content-detail__list">
                 <div>
                   <dt>저장 경로</dt>
                   <dd>{selectedDocument.path}</dd>
+                </div>
+                <div>
+                  <dt>파일 크기</dt>
+                  <dd>{selectedDocument.fileSize}</dd>
                 </div>
                 <div>
                   <dt>등록자</dt>
@@ -369,12 +378,12 @@ export function ContentPanel({ documents }: ContentPanelProps) {
                   <dd>{selectedDocument.createdAt}</dd>
                 </div>
                 <div>
-                  <dt>수정일</dt>
-                  <dd>{selectedDocument.updatedAt}</dd>
+                  <dt>수정자</dt>
+                  <dd>{selectedDocument.history[0]?.actor ?? selectedDocument.author}</dd>
                 </div>
                 <div>
-                  <dt>파일 크기</dt>
-                  <dd>{selectedDocument.fileSize}</dd>
+                  <dt>수정일</dt>
+                  <dd>{selectedDocument.updatedAt}</dd>
                 </div>
               </dl>
 

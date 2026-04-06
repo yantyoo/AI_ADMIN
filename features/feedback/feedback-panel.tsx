@@ -175,8 +175,13 @@ export function FeedbackPanel({ feedbacks }: FeedbackPanelProps) {
           ) : (
             <div className="feedback-detail-scroll">
               <SectionHeader
-                title={selected.complexName}
-                className="detail-frame__header"
+                title={
+                  <div className="feedback-detail-identity">
+                    <span className="feedback-detail-identity__complex">{selected.complexName}</span>
+                    <span className="feedback-detail-identity__user">{selected.userId}</span>
+                  </div>
+                }
+                className="detail-frame__header feedback-detail-identity-header"
                 titleAs="h3"
               />
 

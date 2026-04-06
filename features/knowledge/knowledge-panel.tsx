@@ -78,18 +78,6 @@ export function KnowledgePanel({ documents }: KnowledgePanelProps) {
 
           <div className="knowledge-form">
             <label className="field">
-              <span className="field__label">질문 입력 *</span>
-              <textarea
-                className="field__input knowledge-textarea"
-                value={form.question}
-                maxLength={1000}
-                rows={4}
-                placeholder="1자 이상 입력 (최대 1000자)"
-                onChange={(e) => setForm({ ...form, question: e.target.value })}
-              />
-            </label>
-
-            <label className="field">
               <span className="field__label">문서 유형 *</span>
               <select
                 className="field__input"
@@ -99,7 +87,7 @@ export function KnowledgePanel({ documents }: KnowledgePanelProps) {
                 <option value="">선택하세요</option>
                 <option value="MANUAL">매뉴얼</option>
                 <option value="FAQ">FAQ</option>
-              </select>
+                </select>
             </label>
 
             <label className="field">
@@ -116,7 +104,19 @@ export function KnowledgePanel({ documents }: KnowledgePanelProps) {
                     {doc.name}
                   </option>
                 ))}
-              </select>
+                </select>
+            </label>
+
+            <label className="field">
+              <span className="field__label">질문 입력 *</span>
+              <textarea
+                className="field__input knowledge-textarea"
+                value={form.question}
+                maxLength={1000}
+                rows={4}
+                placeholder="1자 이상 입력 (최대 1000자)"
+                onChange={(e) => setForm({ ...form, question: e.target.value })}
+              />
             </label>
 
             <div className="knowledge-action-row">
