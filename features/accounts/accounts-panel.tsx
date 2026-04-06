@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { AccountDetail, AccountStatus, UserCandidate } from "@/types/accounts";
 import { userCandidates as allCandidates } from "@/api/accounts";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 const CURRENT_USER_ID = "chat1004";
 
@@ -312,7 +313,7 @@ export function AccountsPanel({ accounts: initialAccounts }: AccountsPanelProps)
       </div>
 
       {actionModal && (
-        <div className="modal-backdrop" role="presentation" onClick={() => setActionModal(null)}>
+        <ModalPortal onBackdropClick={() => setActionModal(null)}>
           <div
             className="modal"
             role="dialog"
@@ -352,11 +353,11 @@ export function AccountsPanel({ accounts: initialAccounts }: AccountsPanelProps)
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {addModalOpen && (
-        <div className="modal-backdrop" role="presentation" onClick={closeAddModal}>
+        <ModalPortal onBackdropClick={closeAddModal}>
           <div
             className="modal"
             role="dialog"
@@ -432,7 +433,7 @@ export function AccountsPanel({ accounts: initialAccounts }: AccountsPanelProps)
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

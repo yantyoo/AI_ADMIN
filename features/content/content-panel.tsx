@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { uploadContentDocument } from "@/api/content";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import type {
   ContentDocument,
   ContentDocumentType,
@@ -405,7 +406,7 @@ export function ContentPanel({ documents }: ContentPanelProps) {
       {errorMessage ? <p className="content-error">{errorMessage}</p> : null}
 
       {isUploadOpen ? (
-        <div className="modal-backdrop" role="presentation" onClick={closeUploadModal}>
+        <ModalPortal onBackdropClick={closeUploadModal}>
           <div
             className="modal"
             role="dialog"
@@ -479,11 +480,11 @@ export function ContentPanel({ documents }: ContentPanelProps) {
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       ) : null}
 
       {isDeleteOpen ? (
-        <div className="modal-backdrop" role="presentation" onClick={() => setIsDeleteOpen(false)}>
+        <ModalPortal onBackdropClick={() => setIsDeleteOpen(false)}>
           <div
             className="modal"
             role="dialog"
@@ -511,7 +512,7 @@ export function ContentPanel({ documents }: ContentPanelProps) {
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       ) : null}
     </div>
   );

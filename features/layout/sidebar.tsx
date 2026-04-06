@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { navItems } from "@/features/layout/config";
 import { clearAuthProfile, readStoredAuthProfile } from "@/features/layout/session";
 
@@ -75,7 +76,7 @@ export function Sidebar() {
       </div>
 
       {logoutOpen ? (
-        <div className="modal-backdrop logout-backdrop" role="presentation" onClick={() => setLogoutOpen(false)}>
+        <ModalPortal backdropClassName="logout-backdrop" onBackdropClick={() => setLogoutOpen(false)}>
           <section
             className="modal modal--compact"
             role="dialog"
@@ -98,7 +99,7 @@ export function Sidebar() {
               </button>
             </div>
           </section>
-        </div>
+        </ModalPortal>
       ) : null}
     </aside>
   );

@@ -81,6 +81,8 @@ button {
   flex-direction: column;
   min-width: 0;
   min-height: 100svh;
+  position: relative;
+  z-index: 0;
   overflow: hidden;
 }
 
@@ -89,6 +91,8 @@ button {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  position: relative;
+  z-index: 0;
   overflow: auto;
   padding: 18px 24px 28px;
   min-width: 0;
@@ -1279,7 +1283,7 @@ select.field__input {
   padding: 20px;
   background: rgba(16, 26, 46, 0.5);
   backdrop-filter: blur(6px);
-  z-index: 1000;
+  z-index: 5000;
 }
 
 .modal {
@@ -2525,19 +2529,20 @@ select.field__input {
     radial-gradient(circle at top left, rgba(74, 130, 245, 0.14), transparent 38%),
     radial-gradient(circle at bottom right, rgba(39, 184, 112, 0.12), transparent 32%),
     linear-gradient(150deg, #f5f8fd 0%, #edf1f8 100%);
+  place-items: center;
 }
 
 .auth-card {
-  width: 100%;
-  min-height: 100svh;
+  width: min(calc(100vw - 48px), 1360px);
+  min-height: calc(100svh - 48px);
   display: grid;
   grid-template-columns: minmax(0, 0.78fr) minmax(420px, 1.22fr);
   gap: 0;
-  border: 0;
-  border-radius: 0;
+  border: 1px solid rgba(220, 228, 242, 0.9);
+  border-radius: 28px;
   overflow: hidden;
   background: #ffffff;
-  box-shadow: none;
+  box-shadow: var(--shadow-lg);
 }
 
 .auth-card__intro {
@@ -2584,6 +2589,10 @@ select.field__input {
   color: rgba(255, 255, 255, 0.78);
   font-size: 14px;
   line-height: 1.75;
+}
+
+.auth-card__guide {
+  display: none;
 }
 
 .auth-form {
@@ -2661,8 +2670,7 @@ select.field__input {
   max-width: 360px;
 }
 
-.auth-card .auth-submit,
-.auth-card .auth-cancel {
+.auth-card .auth-submit {
   width: 100%;
 }
 
@@ -2682,6 +2690,14 @@ select.field__input {
 
 .auth-otp-modal {
   width: min(100%, 540px);
+}
+
+.auth-notice-backdrop {
+  z-index: 5000;
+}
+
+.auth-notice-modal {
+  width: min(100%, 460px);
 }
 
 .auth-otp-modal__header {
@@ -2707,6 +2723,18 @@ select.field__input {
 
 .auth-otp-modal__actions {
   justify-content: flex-end;
+}
+
+.auth-notice-modal__body {
+  gap: 10px;
+}
+
+.auth-notice-modal__message {
+  margin: 0;
+  white-space: pre-line;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
 }
 
 .auth-standalone {
@@ -2926,6 +2954,10 @@ select.field__input {
     padding: 16px;
   }
 
+  .auth-shell--standalone {
+    padding: 0;
+  }
+
   .auth-card__intro,
   .auth-form {
     padding: 24px;
@@ -2933,6 +2965,9 @@ select.field__input {
 
   .auth-card {
     grid-template-columns: 1fr;
+    width: 100%;
+    min-height: 100svh;
+    border-radius: 0;
   }
 
   .auth-card__intro {

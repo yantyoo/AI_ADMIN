@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ListPanel } from "@/components/layout/list-panel";
 import { Pagination } from "@/components/ui/pagination";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import {
   createCacheQaEntry,
   findCacheQaDuplicate,
@@ -421,7 +422,7 @@ export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
       </div>
 
       {editorOpen ? (
-        <div className="modal-backdrop" role="presentation" onClick={closeEditor}>
+        <ModalPortal onBackdropClick={closeEditor}>
           <div
             className="modal modal--compact"
             role="dialog"
@@ -511,11 +512,11 @@ export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       ) : null}
 
       {deleteOpen ? (
-        <div className="modal-backdrop" role="presentation" onClick={() => setDeleteOpen(false)}>
+        <ModalPortal onBackdropClick={() => setDeleteOpen(false)}>
           <div
             className="modal modal--compact"
             role="dialog"
@@ -541,7 +542,7 @@ export function CacheQaPanel({ items: initialItems }: CacheQaPanelProps) {
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       ) : null}
     </div>
   );

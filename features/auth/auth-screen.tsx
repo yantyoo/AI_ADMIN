@@ -1,15 +1,15 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import {
   AUTH_OTP_FAILURES_KEY,
   AUTH_OTP_LOCKED_KEY,
   AUTH_PROFILE_KEY,
   AUTH_STAGE_KEY,
   AUTH_USER_KEY,
-  resolveMockAuthProfile,
   storeAuthProfile
 } from "@/features/layout/session";
 
@@ -19,8 +19,76 @@ type AuthFormState = {
   otp: string;
 };
 
+type NoticeModalState = {
+  title: string;
+  message: string;
+} | null;
+
 const OTP_CODE = "123456";
 const OTP_MAX_FAILURES = 5;
+
+const INVALID_CREDENTIALS_NOTICE = {
+  title: "로그인 오류",
+  message: "아이디 또는 비밀번호가 올바르지 않습니다.\n다시 확인해 주세요."
+};
+
+const UNAUTHORIZED_NOTICE = {
+  title: "권한 없음",
+  message: "권한이 없는 사용자입니다.\n관리자에게 권한을 요청해 주세요."
+};
+
+const OTP_LOCKED_NOTICE = {
+  title: "OTP 잠금",
+  message: "OTP 오류로 잠금된 아이디 입니다.\n관리자에게 문의하세요."
+};
+
+type MockAuthAccount = {
+  password: string;
+  profile: {
+    userId: string;
+    id: string;
+    name: string;
+    role: "MASTER" | "OPERATOR";
+    department: string;
+  };
+  allowed: boolean;
+};
+
+const MOCK_AUTH_ACCOUNTS: Record<string, MockAuthAccount> = {
+  test0000: {
+    password: "1234",
+    profile: {
+      userId: "test0000",
+      id: "chat1004",
+      name: "박승준",
+      role: "MASTER",
+      department: "운영 관리자"
+    },
+    allowed: true
+  },
+  test1111: {
+    password: "1234",
+    profile: {
+      userId: "test1111",
+      id: "op2031",
+      name: "권태영",
+      role: "OPERATOR",
+      department: "운영 담당"
+    },
+    allowed: true
+  },
+  blocked0000: {
+    password: "1234",
+    profile: {
+      userId: "blocked0000",
+      id: "op9001",
+      name: "차단계정",
+      role: "OPERATOR",
+      department: "권한 미부여"
+    },
+    allowed: false
+  }
+};
 
 const defaultState: AuthFormState = {
   userId: "",
@@ -48,6 +116,7 @@ export function AuthScreen() {
   const [otpOpen, setOtpOpen] = useState(false);
   const [otpFailures, setOtpFailures] = useState(0);
   const [otpLocked, setOtpLocked] = useState(false);
+  const [noticeModal, setNoticeModal] = useState<NoticeModalState>(null);
 
   const otpMessage = useMemo(() => {
     if (otpLocked) {
@@ -87,6 +156,14 @@ export function AuthScreen() {
     setError("");
   };
 
+  const openNoticeModal = (notice: { title: string; message: string }) => {
+    setNoticeModal(notice);
+  };
+
+  const closeNoticeModal = () => {
+    setNoticeModal(null);
+  };
+
   const openOtp = () => {
     setOtpOpen(true);
     setError("");
@@ -110,13 +187,26 @@ export function AuthScreen() {
     }
 
     if (!form.userId.trim() || !form.password.trim()) {
-      setError("아이디와 비밀번호를 입력해 주세요.");
+      setError("?꾩씠?붿? 鍮꾨?踰덊샇瑜??낅젰??二쇱꽭??");
+      return;
+    }
+
+    const userId = form.userId.trim();
+    const password = form.password.trim();
+    const account = MOCK_AUTH_ACCOUNTS[userId];
+
+    if (!account || account.password !== password) {
+      openNoticeModal(INVALID_CREDENTIALS_NOTICE);
+      return;
+    }
+
+    if (!account.allowed) {
+      openNoticeModal(UNAUTHORIZED_NOTICE);
       return;
     }
 
     setLoading(true);
-    setHelper("OTP 입력 창을 여는 중입니다.");
-    const userId = form.userId.trim();
+    setHelper("OTP ?낅젰 李쎌쓣 ?щ뒗 以묒엯?덈떎.");
 
     window.sessionStorage.setItem(AUTH_STAGE_KEY, "otp_pending");
     window.sessionStorage.setItem(AUTH_USER_KEY, userId);
@@ -142,12 +232,12 @@ export function AuthScreen() {
     }
 
     if (otpLocked) {
-      setError("OTP 오류로 잠금된 아이디입니다. 관리자에게 문의하세요.");
+      openNoticeModal(OTP_LOCKED_NOTICE);
       return;
     }
 
     if (form.otp.trim().length !== 6) {
-      setError("6자리 OTP를 입력해 주세요.");
+      setError("6?먮━ OTP瑜??낅젰??二쇱꽭??");
       return;
     }
 
@@ -162,23 +252,32 @@ export function AuthScreen() {
       if (isLocked) {
         setOtpLocked(true);
         window.sessionStorage.setItem(AUTH_OTP_LOCKED_KEY, "true");
-        setError("OTP 오류로 잠금된 아이디입니다. 관리자에게 문의하세요.");
+        openNoticeModal(OTP_LOCKED_NOTICE);
       } else {
-        setError(`OTP 인증에 실패했습니다. (${nextFailures}/${OTP_MAX_FAILURES})`);
+        setError(`OTP ?몄쬆???ㅽ뙣?덉뒿?덈떎. (${nextFailures}/${OTP_MAX_FAILURES})`);
       }
 
       setLoading(false);
       return;
     }
 
-    const profile = resolveMockAuthProfile(form.userId.trim());
+    const account = MOCK_AUTH_ACCOUNTS[form.userId.trim()];
+    const profile =
+      account?.profile ?? {
+        userId: form.userId.trim(),
+        id: form.userId.trim(),
+        name: form.userId.trim(),
+        role: "MASTER",
+        department: "?댁쁺 愿由ъ옄"
+      };
+
     storeAuthProfile(profile, rememberId);
     window.sessionStorage.setItem(AUTH_STAGE_KEY, "authenticated");
     window.sessionStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(profile));
     window.sessionStorage.removeItem(AUTH_OTP_FAILURES_KEY);
     window.sessionStorage.removeItem(AUTH_OTP_LOCKED_KEY);
 
-    setHelper("대시보드로 이동합니다.");
+    setHelper("??쒕낫?쒕줈 ?대룞?⑸땲??");
     await sleep(250);
     router.replace("/dashboard");
   };
@@ -198,12 +297,6 @@ export function AuthScreen() {
             <br />
             무단 접근 및 정보 열람 시 관련 법령에 따라 책임이 발생할 수 있습니다.
           </p>
-
-          <ul className="auth-card__guide">
-            <li>OTP는 별도 페이지가 아니라 모달로 표시됩니다.</li>
-            <li>승인된 계정만 접속할 수 있습니다.</li>
-            <li>아이디 저장은 선택한 경우에만 유지됩니다.</li>
-          </ul>
         </div>
 
         <form className="auth-form" onSubmit={handleLoginSubmit}>
@@ -250,26 +343,6 @@ export function AuthScreen() {
             <button type="submit" className="primary-button auth-submit" disabled={isLoginDisabled}>
               {loading ? "처리 중..." : "다음"}
             </button>
-            <button
-              type="button"
-              className="secondary-button auth-cancel"
-              onClick={() => {
-                setForm(defaultState);
-                setError("");
-                setHelper("");
-                setOtpOpen(false);
-                setOtpFailures(0);
-                setOtpLocked(false);
-                window.sessionStorage.removeItem(AUTH_STAGE_KEY);
-                window.sessionStorage.removeItem(AUTH_USER_KEY);
-                window.sessionStorage.removeItem(AUTH_OTP_FAILURES_KEY);
-                window.sessionStorage.removeItem(AUTH_OTP_LOCKED_KEY);
-                window.sessionStorage.removeItem(AUTH_PROFILE_KEY);
-                window.localStorage.removeItem(AUTH_USER_KEY);
-              }}
-            >
-              초기화
-            </button>
           </div>
 
           <div className="auth-form__feedback" aria-live="polite">
@@ -280,7 +353,7 @@ export function AuthScreen() {
       </section>
 
       {otpOpen ? (
-        <div className="modal-backdrop auth-otp-backdrop" role="presentation" onClick={closeOtp}>
+        <ModalPortal backdropClassName="auth-otp-backdrop" onBackdropClick={closeOtp}>
           <section
             className="modal auth-otp-modal"
             role="dialog"
@@ -328,7 +401,34 @@ export function AuthScreen() {
               </div>
             </form>
           </section>
-        </div>
+        </ModalPortal>
+      ) : null}
+
+      {noticeModal ? (
+        <ModalPortal backdropClassName="auth-notice-backdrop" onBackdropClick={closeNoticeModal}>
+          <section
+            className="modal modal--compact auth-notice-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={noticeModal.title}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal__header modal__header--tight auth-notice-modal__header">
+              <h3>{noticeModal.title}</h3>
+              <button type="button" className="icon-button" onClick={closeNoticeModal}>
+                횞
+              </button>
+            </div>
+            <div className="modal__body auth-notice-modal__body">
+              <p className="auth-notice-modal__message">{noticeModal.message}</p>
+            </div>
+            <div className="modal__footer modal__footer--split">
+              <button type="button" className="primary-button" onClick={closeNoticeModal}>
+                ?뺤씤
+              </button>
+            </div>
+          </section>
+        </ModalPortal>
       ) : null}
     </main>
   );
