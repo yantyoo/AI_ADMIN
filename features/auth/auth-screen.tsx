@@ -56,7 +56,7 @@ type MockAuthAccount = {
 
 const MOCK_AUTH_ACCOUNTS: Record<string, MockAuthAccount> = {
   test0000: {
-    password: "1234",
+    password: "a123456789",
     profile: {
       userId: "test0000",
       id: "chat1004",
@@ -67,7 +67,7 @@ const MOCK_AUTH_ACCOUNTS: Record<string, MockAuthAccount> = {
     allowed: true
   },
   test1111: {
-    password: "1234",
+    password: "a123456789",
     profile: {
       userId: "test1111",
       id: "op2031",
@@ -78,7 +78,7 @@ const MOCK_AUTH_ACCOUNTS: Record<string, MockAuthAccount> = {
     allowed: true
   },
   blocked0000: {
-    password: "1234",
+    password: "a123456789",
     profile: {
       userId: "blocked0000",
       id: "op9001",
@@ -106,7 +106,7 @@ const readNumber = (value: string | null) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-export function AuthScreen() {
+export default function AuthScreen() {
   const router = useRouter();
   const [form, setForm] = useState<AuthFormState>(defaultState);
   const [helper, setHelper] = useState("");
@@ -187,7 +187,7 @@ export function AuthScreen() {
     }
 
     if (!form.userId.trim() || !form.password.trim()) {
-      setError("?꾩씠?붿? 鍮꾨?踰덊샇瑜??낅젰??二쇱꽭??");
+      setError("아이디와 비밀번호를 입력해 주세요.");
       return;
     }
 
@@ -206,7 +206,7 @@ export function AuthScreen() {
     }
 
     setLoading(true);
-    setHelper("OTP ?낅젰 李쎌쓣 ?щ뒗 以묒엯?덈떎.");
+    setHelper("OTP 입력 창을 여는 중입니다.");
 
     window.sessionStorage.setItem(AUTH_STAGE_KEY, "otp_pending");
     window.sessionStorage.setItem(AUTH_USER_KEY, userId);
@@ -237,7 +237,7 @@ export function AuthScreen() {
     }
 
     if (form.otp.trim().length !== 6) {
-      setError("6?먮━ OTP瑜??낅젰??二쇱꽭??");
+      setError("6자리 OTP를 입력해 주세요.");
       return;
     }
 
@@ -254,7 +254,7 @@ export function AuthScreen() {
         window.sessionStorage.setItem(AUTH_OTP_LOCKED_KEY, "true");
         openNoticeModal(OTP_LOCKED_NOTICE);
       } else {
-        setError(`OTP ?몄쬆???ㅽ뙣?덉뒿?덈떎. (${nextFailures}/${OTP_MAX_FAILURES})`);
+        setError(`OTP 인증에 실패했습니다. (${nextFailures}/${OTP_MAX_FAILURES})`);
       }
 
       setLoading(false);
@@ -268,7 +268,7 @@ export function AuthScreen() {
         id: form.userId.trim(),
         name: form.userId.trim(),
         role: "MASTER",
-        department: "?댁쁺 愿由ъ옄"
+        department: "운영 관리자"
       };
 
     storeAuthProfile(profile, rememberId);
@@ -277,7 +277,7 @@ export function AuthScreen() {
     window.sessionStorage.removeItem(AUTH_OTP_FAILURES_KEY);
     window.sessionStorage.removeItem(AUTH_OTP_LOCKED_KEY);
 
-    setHelper("??쒕낫?쒕줈 ?대룞?⑸땲??");
+    setHelper("대시보드로 이동합니다.");
     await sleep(250);
     router.replace("/dashboard");
   };
@@ -341,7 +341,7 @@ export function AuthScreen() {
 
           <div className="auth-form__actions">
             <button type="submit" className="primary-button auth-submit" disabled={isLoginDisabled}>
-              {loading ? "처리 중..." : "다음"}
+              {loading ? "처리 중..." : "로그인"}
             </button>
           </div>
 
@@ -416,7 +416,7 @@ export function AuthScreen() {
             <div className="modal__header modal__header--tight auth-notice-modal__header">
               <h3>{noticeModal.title}</h3>
               <button type="button" className="icon-button" onClick={closeNoticeModal}>
-                횞
+                ×
               </button>
             </div>
             <div className="modal__body auth-notice-modal__body">
@@ -424,7 +424,7 @@ export function AuthScreen() {
             </div>
             <div className="modal__footer modal__footer--split">
               <button type="button" className="primary-button" onClick={closeNoticeModal}>
-                ?뺤씤
+                확인
               </button>
             </div>
           </section>
