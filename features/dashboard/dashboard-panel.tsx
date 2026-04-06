@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { dashboardMockByRange } from "@/api/dashboard";
 import type { DashboardPayload, TimeRange } from "@/types/dashboard";
-import { dashboardRangeLabels } from "@/features/dashboard/range-config";
 import { ErrorState } from "@/features/dashboard/error-state";
 import { FeedbackRatio } from "@/features/dashboard/feedback-ratio";
 import { KeywordList } from "@/features/dashboard/keyword-list";
@@ -20,7 +19,6 @@ export function DashboardPanel({ data }: DashboardPanelProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>(data.selectedRange);
   const [showError, setShowError] = useState(false);
   const selectedData = dashboardMockByRange[selectedRange];
-  const selectedLabel = dashboardRangeLabels[selectedRange];
 
   return (
     <div className="dashboard-grid">
@@ -44,7 +42,7 @@ export function DashboardPanel({ data }: DashboardPanelProps) {
               ))}
             </div>
 
-            <TrendChart points={selectedData.trend} rangeNote={selectedLabel.note} />
+            <TrendChart points={selectedData.trend} />
           </>
         )}
       </section>
