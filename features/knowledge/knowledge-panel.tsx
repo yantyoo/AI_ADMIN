@@ -58,19 +58,12 @@ export function KnowledgePanel({
   }, [form.dataSourceId, documents]);
 
   const canQuery =
-    form.question.trim().length >= 1 &&
+    form.question.length >= 1 &&
     form.documentType !== "" &&
     form.dataSourceId !== "" &&
     form.documentId !== "";
 
-  const canReset =
-    queryState !== "IDLE" ||
-    form.question.trim().length > 0 ||
-    form.documentType !== "" ||
-    form.dataSourceId !== "" ||
-    form.documentId !== "" ||
-    memo.trim().length > 0 ||
-    verdict !== null;
+  const canReset = queryState !== "IDLE";
 
   const handleDocumentTypeChange = (value: string) => {
     setForm({
@@ -91,13 +84,9 @@ export function KnowledgePanel({
     setVerdict(null);
     setMemo("");
 
-    try {
-      const res = await executeKnowledgeQuery(form);
-      setQueryState(res ? "SUCCESS" : "EMPTY");
-      if (res) setResult(res);
-    } catch {
-      setQueryState("ERROR");
-    }
+    const res = await executeKnowledgeQuery(form);
+    setQueryState(res ? "SUCCESS" : "EMPTY");
+    if (res) setResult(res);
   };
 
   const handleReset = () => {

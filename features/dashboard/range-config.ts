@@ -5,18 +5,18 @@ export const dashboardRangeLabels: Record<
   { label: string; helper: string; axisLabel: string }
 > = {
   DAY: {
-    label: "7일",
-    helper: "7일 기준",
-    axisLabel: "7일"
+    label: "일간",
+    helper: "일간 기준",
+    axisLabel: "시간"
   },
   WEEK: {
-    label: "7주",
-    helper: "7주 기준",
-    axisLabel: "7주"
+    label: "주간",
+    helper: "주간 기준",
+    axisLabel: "날짜"
   },
   MONTH: {
-    label: "7달",
-    helper: "7달 기준",
-    axisLabel: "7달"
+    label: "월간",
+    helper: "월간 기준",
+    axisLabel: "주차"
   }
 };
